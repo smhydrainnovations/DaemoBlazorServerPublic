@@ -126,7 +126,7 @@
                         Text = botText
                     });
 
-                    // Only update threadId if it exists
+                    // Only update threadId if it exists for Daemo to understand conversation context
                     if (!string.IsNullOrWhiteSpace(chatResponse?.threadId))
                     {
                         varthreadId = chatResponse.threadId;
