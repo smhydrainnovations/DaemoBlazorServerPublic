@@ -1,0 +1,130 @@
+﻿@implements IDisposable
+@inject NavigationManager NavigationManager
+
+<MudNavMenu Dense="true">
+
+    <!-- App title -->
+    <MudText Typo="Typo.h6" Class="px-4 py-3">
+        DaemoNETDemo
+    </MudText>
+
+    <MudDivider />
+
+    <!-- Public links -->
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
+        Home
+    </MudNavLink>
+
+    @*<MudNavLink Href="counter" Icon="@Icons.Material.Filled.Add">
+        Counter
+    </MudNavLink>
+
+    <MudNavLink Href="weather" Icon="@Icons.Material.Filled.List">
+        Weather
+    </MudNavLink>*@
+
+    <MudNavLink Href="auth" Icon="@Icons.Material.Filled.Lock">
+        Auth Required
+    </MudNavLink>
+
+    <AuthorizeView>
+        <Authorized>
+            <MudDivider Class="my-2" />
+
+            <!-- User info -->
+            <MudNavLink Href="Account/Manage"
+                        Icon="@Icons.Material.Filled.Person">
+                @context.User.Identity?.Name
+            </MudNavLink>
+
+            <MudNavLink Href="serverChat"
+                        Icon="@Icons.Material.Filled.Chat">
+               Server Chat
+            </MudNavLink>
+
+            <MudNavLink Href="clientChat"
+                        Icon="@Icons.Material.Filled.Chat">
+                Client Chat
+            </MudNavLink>
+
+            <!-- Logout -->
+
+            <div class="mud-nav-item px-4 py-2">
+                <form action="Account/Logout" method="post">
+                    <AntiforgeryToken />
+                    <input type="hidden" name="ReturnUrl" value="@currentUrl" />
+                    <button type="submit" class="mud-nav-link" style="background:none; border:none; width:100%; text-align:left; display:flex; align-items:center;">
+                        <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-3" />
+                        <MudText>Logout</MudText>
+                    </button>
+                </form>
+            </div>
+
+
+        </Authorized>
+
+        <NotAuthorized>
+            <MudDivider Class="my-2" />
+
+            <MudNavLink Href="Account/Login"
+                        Icon="@Icons.Material.Filled.Login">
+                Login
+            </MudNavLink>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    <AuthorizeView Roles="Admin">
+        <Authorized>
+            <MudDivider Class="my-2" />
+
+            <MudText Typo="Typo.subtitle2" Class="px-4 pt-2">
+                Admin
+            </MudText>
+
+            <MudNavLink Href="Account/Register" Icon="@Icons.Material.Filled.PersonAdd">
+                Register
+            </MudNavLink>
+
+            <MudNavLink Href="addDepartment" Icon="@Icons.Material.Filled.Domain">
+                Add Department
+            </MudNavLink>
+
+            <MudNavLink Href="addJobTitle" Icon="@Icons.Material.Filled.Work">
+                Add Job Title
+            </MudNavLink>
+
+            <MudNavLink Href="addRole" Icon="@Icons.Material.Filled.Security">
+                Add Role
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+
+</MudNavMenu>
+
+@code {
+    private string? currentUrl;
+
+    protected override void OnInitialized()
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo(
+            $"Account/Logout?returnUrl={Uri.EscapeDataString(currentUrl ?? "/")}",
+            forceLoad: true);
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}

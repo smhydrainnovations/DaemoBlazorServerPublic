@@ -1,0 +1,433 @@
+{
+  "Port": 0,
+  "ServiceName": "daemodemoservice",
+  "SystemPrompt": "\r\n            You are an intelligent database assistant helping Administration and Employees retrieve meaningful data using prompts\r\n        ",
+  "Functions": [
+    {
+      "Name": "getAllEmployeesAsync",
+      "Description": "This function retreives list of all Employees",
+      "Category": "",
+      "Tags": [],
+      "Examples": [],
+      "Parameters": [],
+      "ReturnType": {
+        "title": "Employee[]",
+        "definitions": {
+          "ApplicationUser": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "Id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "UserName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "NormalizedUserName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "Email": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "NormalizedEmail": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "EmailConfirmed": {
+                "type": "boolean"
+              },
+              "PasswordHash": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "SecurityStamp": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ConcurrencyStamp": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "PhoneNumber": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "PhoneNumberConfirmed": {
+                "type": "boolean"
+              },
+              "TwoFactorEnabled": {
+                "type": "boolean"
+              },
+              "LockoutEnd": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "LockoutEnabled": {
+                "type": "boolean"
+              },
+              "AccessFailedCount": {
+                "type": "integer"
+              }
+            }
+          },
+          "Employee": {
+            "type": [
+              "object",
+              "null"
+            ],
+            "properties": {
+              "Id": {
+                "type": "integer"
+              },
+              "ApplicationUserId": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "FirstName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "LastName": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "DateOfBirth": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "JobTitle": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "Department": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "DateOfJoining": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "Address": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "ApplicationUser": {
+                "$ref": "#/definitions/ApplicationUser"
+              }
+            }
+          }
+        },
+        "type": "array",
+        "items": {
+          "$ref": "#/definitions/Employee"
+        }
+      },
+      "ReturnDescription": "",
+      "Roles": [
+        "Admin"
+      ]
+    },
+    {
+      "Name": "getJoiningDateSingle",
+      "Description": "This function retreives the date of joining for an employee",
+      "Category": "",
+      "Tags": [],
+      "Examples": [],
+      "Parameters": [
+        {
+          "name": "applicationUserId",
+          "schema": {
+            "title": "string",
+            "type": "string"
+          },
+          "required": false,
+          "description": "",
+          "examples": [],
+          "defaultValue": null
+        }
+      ],
+      "ReturnType": {
+        "title": "Date",
+        "type": "string",
+        "format": "date-time"
+      },
+      "ReturnDescription": "",
+      "Roles": [
+        "Admin",
+        "Manager",
+        "User"
+      ]
+    }
+  ],
+  "Definitions": {
+    "Employee": {
+      "title": "Employee",
+      "definitions": {
+        "ApplicationUser": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "properties": {
+            "Id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "UserName": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "NormalizedUserName": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "Email": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "NormalizedEmail": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "EmailConfirmed": {
+              "type": "boolean"
+            },
+            "PasswordHash": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "SecurityStamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ConcurrencyStamp": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PhoneNumber": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "PhoneNumberConfirmed": {
+              "type": "boolean"
+            },
+            "TwoFactorEnabled": {
+              "type": "boolean"
+            },
+            "LockoutEnd": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "format": "date-time"
+            },
+            "LockoutEnabled": {
+              "type": "boolean"
+            },
+            "AccessFailedCount": {
+              "type": "integer"
+            }
+          }
+        }
+      },
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": "integer"
+        },
+        "ApplicationUserId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "FirstName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "LastName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DateOfBirth": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "JobTitle": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Department": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "DateOfJoining": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "Address": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ApplicationUser": {
+          "$ref": "#/definitions/ApplicationUser"
+        }
+      }
+    },
+    "ApplicationUser": {
+      "title": "ApplicationUser",
+      "type": "object",
+      "properties": {
+        "Id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "UserName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NormalizedUserName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "Email": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "NormalizedEmail": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "EmailConfirmed": {
+          "type": "boolean"
+        },
+        "PasswordHash": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "SecurityStamp": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ConcurrencyStamp": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PhoneNumber": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "PhoneNumberConfirmed": {
+          "type": "boolean"
+        },
+        "TwoFactorEnabled": {
+          "type": "boolean"
+        },
+        "LockoutEnd": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "LockoutEnabled": {
+          "type": "boolean"
+        },
+        "AccessFailedCount": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "Metadata": {
+    "GeneratedAt": "2026-01-16T03:54:18.6587989Z",
+    "FunctionCount": 2,
+    "Categories": [],
+    "Tags": []
+  }
+}

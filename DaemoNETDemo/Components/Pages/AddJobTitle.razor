@@ -1,0 +1,100 @@
+﻿@page "/addJobTitle"
+@rendermode InteractiveServer
+@using DaemoNETDemo.Data
+@using DaemoNETDemo.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Add New Job Title</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h4" GutterBottom="true">Add a New Job Title</MudText>
+
+    <MudPaper Class="pa-6">
+        @if (isSuccess)
+        {
+            <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="(() => isSuccess = false)">
+                Job Title added successfully!
+            </MudAlert>
+        }
+
+        @if (errorMessage != null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+                @errorMessage
+            </MudAlert>
+        }
+
+        <EditForm Model="newJobTitle" OnValidSubmit="HandleSubmit" FormName="jobtitleForm">
+            <DataAnnotationsValidator />
+
+            <MudTextField T="string"
+                          Label="Job Title"
+                          @bind-Value="newJobTitle.Title"
+                          For="@(() => newJobTitle.Title)"
+                          id="job-title-input"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Class="mb-4" />
+
+            <MudTextField T="string"
+                          Label="Job Title Description"
+                          @bind-Value="newJobTitle.Description"
+                          For="@(() => newJobTitle.Description)"
+                          id="job-desc-input"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Lines="3"
+                          Class="mb-6" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large">
+                Add Job Title
+            </MudButton>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private JobTitle newJobTitle = new JobTitle();
+    private bool isSuccess = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        // Reset state
+        isSuccess = false;
+        errorMessage = null;
+
+        // Async existence check
+        var exists = await DbContext.JobTitles.AnyAsync(d => d.Title == newJobTitle.Title);
+        if (exists)
+        {
+            errorMessage = "The Job title already exists.";
+            return;
+        }
+
+        try
+        {
+            DbContext.JobTitles.Add(newJobTitle);
+            await DbContext.SaveChangesAsync();
+
+            isSuccess = true;
+            errorMessage = null;
+
+            // Reset form
+            newJobTitle = new JobTitle();
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            errorMessage = $"There was an error adding the job title: {ex.Message}";
+        }
+    }
+}

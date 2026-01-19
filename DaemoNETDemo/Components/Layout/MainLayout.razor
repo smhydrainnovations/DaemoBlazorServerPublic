@@ -1,0 +1,41 @@
+﻿@inherits LayoutComponentBase
+@using MudBlazor
+@using MudBlazor.Services
+@using DaemoNETDemo.Components.Account.Shared
+
+<MudThemeProvider Theme="@MyownTheme" />
+<MudPopoverProvider @rendermode="InteractiveServer" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar>
+
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+
+
+    </MudAppBar>
+    <MudDrawer @bind-Open="_drawerOpen">
+        <NavMenu />
+    </MudDrawer>
+
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<!-- Blazor error UI (unchanged) -->
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private MudTheme MyownTheme = CustomTheme.GetTheme();
+
+    private void DrawerToggle() => _drawerOpen = !_drawerOpen;
+
+}

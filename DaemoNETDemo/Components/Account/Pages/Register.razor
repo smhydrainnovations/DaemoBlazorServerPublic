@@ -1,0 +1,306 @@
+﻿@page "/Account/Register"
+@rendermode InteractiveServer
+@using System.ComponentModel.DataAnnotations
+@using System.Text
+@using System.Text.Encodings.Web
+@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.WebUtilities
+@using DaemoNETDemo.Data
+@using DaemoNETDemo.Models
+@using DaemoNETDemo.DTO
+@using Microsoft.AspNetCore.Authorization
+@using MudBlazor
+@using MudBlazor.Services
+@using Microsoft.EntityFrameworkCore
+
+@inject ApplicationDbContext _db
+@attribute [Authorize(Roles = "Admin")]
+@inject ISnackbar Snackbar
+@inject UserManager<ApplicationUser> UserManager
+@inject IUserStore<ApplicationUser> UserStore
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IEmailSender<ApplicationUser> EmailSender
+@inject ILogger<Register> Logger
+@inject NavigationManager NavigationManager
+@inject IdentityRedirectManager RedirectManager
+@inject RoleManager<IdentityRole> RoleManager
+
+
+<PageTitle>Register</PageTitle>
+
+<MudText Typo="Typo.h3" GutterBottom="true">Register</MudText>
+
+<MudGrid>
+    <MudItem xs="12" sm="7" md="5">
+        <MudPaper Class="pa-4">
+            @* Add this above your EditForm *@
+            @if (!string.IsNullOrEmpty(SuccessMessage))
+            {
+                <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4">
+                    @SuccessMessage
+                </MudAlert>
+            }
+
+            @if (!string.IsNullOrEmpty(Message))
+            {
+                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+                    @Message
+                </MudAlert>
+            }
+
+
+            <EditForm Model="Input" OnValidSubmit="RegisterUser" FormName="register">
+                <DataAnnotationsValidator />
+                <MudText Typo="Typo.h5" Class="mb-3">Create a new account.</MudText>
+                <MudDivider Class="mb-4" />
+
+                <MudTextField T="string" Label="Email" @bind-Value="Input.Email"
+                              For="@(() => Input.Email)"
+                              Variant="Variant.Outlined"
+                              InputType="InputType.Email" Class="mb-3" />
+
+                <MudTextField T="string" Label="Password" @bind-Value="Input.Password"
+                              For="@(() => Input.Password)"
+                              Variant="Variant.Outlined"
+                              InputType="InputType.Password" Class="mb-3" />
+
+                <MudTextField T="string" Label="Confirm Password" @bind-Value="Input.ConfirmPassword"
+                              For="@(() => Input.ConfirmPassword)"
+                              Variant="Variant.Outlined"
+                              InputType="InputType.Password" Class="mb-3" />
+
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="First Name" @bind-Value="Input.FirstName"
+                                      For="@(() => Input.FirstName)"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField T="string" Label="Last Name" @bind-Value="Input.LastName"
+                                      For="@(() => Input.LastName)"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+
+                @* Date of Birth with explicit ID *@
+                <MudDatePicker Label="Date of Birth" @bind-Date="Input.DateOfBirth"
+                               For="@(() => Input.DateOfBirth)"
+                               Variant="Variant.Outlined"
+                               id="dob-picker" Class="mt-3" />
+
+                @* Job Title with ID *@
+                <MudSelect T="int" Label="Job Title" @bind-Value="Input.SelectedJobTitleId"
+                           For="@(() => Input.SelectedJobTitleId)"
+                           Variant="Variant.Outlined"
+                           id="job-title-select" Class="mt-3">
+                    <MudSelectItem Value="0">Select Role</MudSelectItem>
+                    @foreach (var job in JobTitles)
+                    {
+                        <MudSelectItem Value="@job.Id">@job.Title</MudSelectItem>
+                    }
+                </MudSelect>
+
+                @* Department with ID *@
+                <MudSelect T="int" Label="Department" @bind-Value="Input.SelectedDepartmentId"
+                           For="@(() => Input.SelectedDepartmentId)"
+                           Variant="Variant.Outlined"
+                           id="dept-select" Class="mt-3">
+                    <MudSelectItem Value="0">Select Department</MudSelectItem>
+                    @foreach (var dept in Departments)
+                    {
+                        <MudSelectItem Value="@dept.Id">@dept.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+                @* Role with ID *@
+                <MudSelect T="string" Label="Role" @bind-Value="Input.SelectedRole"
+                           For="@(() => Input.SelectedRole)" Variant="Variant.Outlined"
+                           id="role-select">
+                    <MudSelectItem Value="@("")">-- Select Role --</MudSelectItem>
+                    @foreach (var role in Roles)
+                    {
+                        <MudSelectItem Value="@role.Name">@role.Name</MudSelectItem>
+                    }
+                </MudSelect>
+
+
+                <MudDatePicker Label="Date of Joining" @bind-Date="Input.DateOfJoining"
+                               For="@(() => Input.DateOfJoining)" Variant="Variant.Outlined"
+                               Class="mt-3" />
+
+                <MudTextField T="string" Label="Address" @bind-Value="Input.Address"
+                              Variant="Variant.Outlined" Class="mt-3" Lines="2" />
+
+                <MudTextField T="string" Label="Phone Number" @bind-Value="Input.PhoneNumber"
+                              Variant="Variant.Outlined" Class="mt-3" />
+
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled"
+                           Color="Color.Primary" FullWidth="true" Class="mt-6">
+                    Register
+                </MudButton>
+            </EditForm>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+
+@code {
+   // private IEnumerable? identityErrors;
+    private string? SuccessMessage; // New property for success feedback
+
+    // This handles the error string
+    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+
+    private IEnumerable<IdentityError>? identityErrors;
+    private IEnumerable<JobTitle> JobTitles { get; set; } = Enumerable.Empty<JobTitle>();
+    private IEnumerable<Department> Departments { get; set; } = Enumerable.Empty<Department>();
+    private IEnumerable<IdentityRole> Roles { get; set; } = Enumerable.Empty<IdentityRole>();
+
+    [SupplyParameterFromForm]
+    private InputModel Input { get; set; } = new();
+
+    [SupplyParameterFromQuery]
+    private string? ReturnUrl { get; set; }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch data from the DbContext for Job Titles, Departments, and Roles
+        JobTitles = await _db.JobTitles.ToListAsync();
+        Departments = await _db.Departments.ToListAsync();
+        Roles = await RoleManager.Roles.ToListAsync();
+        StateHasChanged();
+
+    }  
+
+    private ApplicationUser CreateUser()
+    {
+        try
+        {
+            return Activator.CreateInstance<ApplicationUser>();
+        }
+        catch
+        {
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
+                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+        }
+    }
+
+    private IUserEmailStore<ApplicationUser> GetEmailStore()
+    {
+        if (!UserManager.SupportsUserEmail)
+        {
+            throw new NotSupportedException("The default UI requires a user store with email support.");
+        }
+        return (IUserEmailStore<ApplicationUser>)UserStore;
+    }
+
+    
+    public async Task RegisterUser(EditContext editContext)
+    {
+        // Clear previous messages
+        SuccessMessage = null;
+        identityErrors = null;
+
+        var selectedJob = await _db.JobTitles.FindAsync(Input.SelectedJobTitleId);
+        var selectedDept = await _db.Departments.FindAsync(Input.SelectedDepartmentId);
+
+        var user = CreateUser();
+        user.UserName = Input.Email;
+        user.Email = Input.Email;
+        user.PhoneNumber = Input.PhoneNumber;
+
+        await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+        var emailStore = GetEmailStore();
+        await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+        var result = await UserManager.CreateAsync(user, Input.Password);
+
+        if (!result.Succeeded)
+        {
+            identityErrors = result.Errors;
+            return;
+        }
+
+        await UserManager.AddToRoleAsync(user, Input.SelectedRole);
+
+        var employee = new Employee
+        {
+            ApplicationUserId = user.Id,
+            FirstName = Input.FirstName,
+            LastName = Input.LastName,
+            DateOfBirth = Input.DateOfBirth ?? DateTime.Now,
+            JobTitle = selectedJob?.Title ?? "N/A",
+            Department = selectedDept?.Name ?? "N/A",
+            DateOfJoining = Input.DateOfJoining ?? DateTime.Now,
+            Address = Input.Address
+        };
+
+        _db.Employees.Add(employee);
+        await _db.SaveChangesAsync();
+
+        // SET SUCCESS MESSAGE
+        SuccessMessage = $"Successfully registered {user.Email}!";
+
+        // RESET FORM
+        Input = new InputModel();
+
+        // Refresh the UI to show the Success message and clear the inputs
+        StateHasChanged();
+    }
+
+    private sealed class InputModel
+    {
+        [Required]
+        [EmailAddress]
+        [Display(Name = "Email")]
+        public string Email { get; set; } = "";
+
+        [Required]
+        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+        [DataType(DataType.Password)]
+        [Display(Name = "Password")]
+        public string Password { get; set; } = "";
+
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        public string ConfirmPassword { get; set; } = "";
+
+        // Additional fields for ApplicationUser
+        [Required]
+        [Display(Name = "First Name")]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Last Name")]
+        public string LastName { get; set; } = "";
+
+        [Required]
+        [Display(Name = "Date of Birth")]
+        [DataType(DataType.Date)]
+        public DateTime? DateOfBirth { get; set; } = DateTime.Now.AddYears(-20);
+
+        [Display(Name = "Job Title")]
+        public int SelectedJobTitleId { get; set; }
+
+        [Display(Name = "Department")]
+        public int SelectedDepartmentId { get; set; }
+
+        [Display(Name = "Role")]
+        public string SelectedRole { get; set; } = "";
+
+        [Display(Name = "Date of Joining")]
+        [DataType(DataType.Date)]
+        public DateTime? DateOfJoining { get; set; } = DateTime.Now;
+
+        [Display(Name = "Address")]
+        public string Address { get; set; } = "";
+
+        [Phone]
+        [Display(Name = "Phone Number")]
+        public string PhoneNumber { get; set; } = "";
+
+
+    }
+}

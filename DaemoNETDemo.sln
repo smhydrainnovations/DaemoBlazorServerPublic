@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36623.8
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaemoNETDemo", "DaemoNETDemo\DaemoNETDemo.csproj", "{98C732AC-9BFF-447B-9343-0EE3ACD8A4B0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaemoNETDemo.Client", "DaemoNETDemo.Client\DaemoNETDemo.Client.csproj", "{DE0C130C-EED1-4298-BC32-4910A184F90A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98C732AC-9BFF-447B-9343-0EE3ACD8A4B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98C732AC-9BFF-447B-9343-0EE3ACD8A4B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98C732AC-9BFF-447B-9343-0EE3ACD8A4B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98C732AC-9BFF-447B-9343-0EE3ACD8A4B0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0C130C-EED1-4298-BC32-4910A184F90A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0C130C-EED1-4298-BC32-4910A184F90A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0C130C-EED1-4298-BC32-4910A184F90A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0C130C-EED1-4298-BC32-4910A184F90A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5C3CAC76-C3AF-4AB0-88D7-FF0561D57667}
+	EndGlobalSection
+EndGlobal

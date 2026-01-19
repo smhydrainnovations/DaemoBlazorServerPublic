@@ -1,0 +1,99 @@
+﻿@page "/addDepartment"
+@rendermode InteractiveServer
+@using DaemoNETDemo.Data
+@using DaemoNETDemo.Models
+@using Microsoft.EntityFrameworkCore
+@inject ApplicationDbContext DbContext
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Add New Department</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h4" GutterBottom="true">Add a New Department</MudText>
+
+    <MudPaper Class="pa-6">
+        @if (isSuccess)
+        {
+            <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="(() => isSuccess = false)">
+                Department added successfully!
+            </MudAlert>
+        }
+
+        @if (errorMessage != null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+                @errorMessage
+            </MudAlert>
+        }
+
+        <EditForm Model="newDepartment" OnValidSubmit="HandleSubmit" FormName="departmentForm">
+            <DataAnnotationsValidator />
+
+            <MudTextField T="string"
+                          Label="Department Name"
+                          @bind-Value="newDepartment.Name"
+                          For="@(() => newDepartment.Name)"
+                          id="dept-name"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Class="mb-4" />
+
+            <MudTextField T="string"
+                          Label="Department Description"
+                          @bind-Value="newDepartment.Description"
+                          For="@(() => newDepartment.Description)"
+                          id="dept-desc"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          Lines="3"
+                          Class="mb-6" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large">
+                Add Department
+            </MudButton>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private Department newDepartment = new Department();
+    private bool isSuccess = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        // Reset states
+        isSuccess = false;
+        errorMessage = null;
+
+        // Use AnyAsync for better performance in 2026 Blazor Server
+        var exists = await DbContext.Departments.AnyAsync(d => d.Name == newDepartment.Name);
+
+        if (exists)
+        {
+            errorMessage = "The Department already exists.";
+            return;
+        }
+
+        try
+        {
+            DbContext.Departments.Add(newDepartment);
+            await DbContext.SaveChangesAsync();
+
+            isSuccess = true;
+
+            // Reset the form
+            newDepartment = new Department();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"There was an error adding the department: {ex.Message}";
+        }
+    }
+}

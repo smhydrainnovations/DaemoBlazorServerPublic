@@ -1,0 +1,99 @@
+﻿@page "/addRole"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Identity
+@inject RoleManager<IdentityRole> RoleManager
+@inject NavigationManager NavigationManager
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "Admin")]
+
+<PageTitle>Add New Role</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-8">
+    <MudText Typo="Typo.h4" GutterBottom="true">Add a New Role</MudText>
+
+    <MudPaper Class="pa-6">
+        @if (isSuccess)
+        {
+            <MudAlert Severity="Severity.Success" Variant="Variant.Filled" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="(() => isSuccess = false)">
+                Role added successfully!
+            </MudAlert>
+        }
+
+        @if (errorMessage != null)
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="mb-4">
+                @errorMessage
+            </MudAlert>
+        }
+
+        <EditForm Model="newRole" OnValidSubmit="HandleSubmit" FormName="roleForm">
+            <DataAnnotationsValidator />
+
+            <MudTextField T="string"
+                          Label="Role Name"
+                          @bind-Value="newRole.Name"
+                          For="@(() => newRole.Name)"
+                          id="role-name-input"
+                          Variant="Variant.Outlined"
+                          Required="true"
+                          HelperText="Enter a unique role name (e.g., Manager, Editor)"
+                          Class="mb-6" />
+
+            <MudButton ButtonType="ButtonType.Submit"
+                       Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       FullWidth="true"
+                       Size="Size.Large">
+                Add Role
+            </MudButton>
+        </EditForm>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private IdentityRole newRole = new IdentityRole();
+    private bool isSuccess = false;
+    private string? errorMessage;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            isSuccess = false;
+            errorMessage = null;
+
+            if (string.IsNullOrWhiteSpace(newRole.Name))
+            {
+                errorMessage = "Role name cannot be empty.";
+                return;
+            }
+
+            var roleExists = await RoleManager.RoleExistsAsync(newRole.Name);
+            if (roleExists)
+            {
+                errorMessage = "The role already exists.";
+                return;
+            }
+
+            // Create using the name from our model
+            var result = await RoleManager.CreateAsync(new IdentityRole(newRole.Name));
+
+            if (result.Succeeded)
+            {
+                isSuccess = true;
+                errorMessage = null;
+                newRole = new IdentityRole(); // Reset the model for a fresh form
+            }
+            else
+            {
+                isSuccess = false;
+                errorMessage = string.Join(", ", result.Errors.Select(e => e.Description));
+            }
+        }
+        catch (Exception ex)
+        {
+            isSuccess = false;
+            errorMessage = $"There was an error adding the role: {ex.Message}";
+        }
+    }
+}
